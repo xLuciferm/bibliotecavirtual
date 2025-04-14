@@ -1,0 +1,17 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="col-md-6 offset-md-3">
+    <h2 class="mb-4">Verificar Token</h2>
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <form method="post" class="border p-4 shadow rounded bg-white">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="token" class="form-label">Código de verificación:</label>
+            <input type="text" name="token" id="token" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Verificar</button>
+    </form>
+</div>
+{% endblock %}

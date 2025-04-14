@@ -1,0 +1,38 @@
+{% extends "accounts/base.html" %}
+
+{% block navbar %}
+<!-- Barra de navegación personalizada solo para esta página -->
+<nav class="navbar navbar-expand-sm navbar-dark bg-primary navbar-custom">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <!-- Izquierda -->
+        <div>
+            {% if request.user.is_authenticated %}
+                <!-- Solo botón cerrar sesión si el usuario está autenticado -->
+            {% endif %}
+        </div>
+
+        <!-- Título central -->
+        <div class="text-white fw-bold fs-5">
+            Sistema de Gestión de Biblioteca Virtual
+        </div>
+
+        <!-- Derecha -->
+        <div>
+            {% if request.user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Cerrar sesión</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <h1 class="mb-4 text-primary">¡Bienvenido {{ request.user.username }}!</h1>
+    <p class="lead">Explora nuestra biblioteca virtual, encuentra libros por categoría o autor, y gestiona tu inventario digital fácilmente.</p>
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" alt="Bienvenido" class="img-fluid my-4" style="max-width: 200px;">
+</div>
+{% endblock %}

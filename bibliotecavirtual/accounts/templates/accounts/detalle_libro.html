@@ -2,14 +2,15 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="card mx-auto" style="max-width: 800px;"> <!-- Aumenté el ancho máximo -->
-        <div class="row g-0"> <!-- row sin espacio entre columnas (g-0) -->
+    <div class="card mx-auto" style="max-width: 800px;">
+        <div class="row g-0">
             <!-- Columna para la imagen -->
             <div class="col-md-4">
                 {% if libro.imagen %}
                 <img src="{{ libro.imagen.url }}" class="img-fluid rounded-start" alt="{{ libro.titulo }}" style="width: 100%; height: auto; object-fit: cover;">
                 {% endif %}
             </div>
+
             <!-- Columna para la información -->
             <div class="col-md-8">
                 <div class="card-body">
@@ -22,7 +23,11 @@
                         <p class="card-text mt-3"><strong>Descripción:</strong> {{ libro.descripcion }}</p>
                     {% endif %}
 
-                    <a href="{% url 'catalogo' %}" class="btn btn-secondary mt-3">← Volver al catálogo</a>
+                    <!-- Botones -->
+                    <div class="mt-3 d-flex gap-2">
+                        <a href="{% url 'catalogo' %}" class="btn btn-secondary">← Volver al catálogo</a>
+                        <a href="{% url 'reservar_libro' libro.id %}" class="btn btn-success">Reservar libro</a>
+                    </div>
                 </div>
             </div>
         </div>

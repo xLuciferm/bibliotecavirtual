@@ -113,11 +113,47 @@ def catalogo_view(request):
         'hay_busqueda': hay_busqueda
     })
 
-from django.shortcuts import render, get_object_or_404
-from .models import Libro
-
 @login_required
 def detalle_libro_view(request, libro_id):
     libro = get_object_or_404(Libro, id=libro_id)
     return render(request, 'accounts/detalle_libro.html', {'libro': libro})
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
+from .models import Libro
+from .forms import ReservaForm
+from django.utils import timezone
+from django.contrib import messages
+
+def reservar_libro(request, id):
+    libro = get_object_or_404(Libro, id=id)
+
+    if request.method == 'POST':
+        form = ReservaForm(request.POST)
+        if form.is_valid():
+            fecha_reserva = form.cleaned_data['fecha_reserva']
+            if fecha_reserva < timezone.now().date():
+                messages.error(request, "No puedes seleccionar una fecha pasada.")
+            else:
+                # Aquí podrías guardar la reserva en tu modelo Reserva si ya lo tienes
+                # Ejemplo:
+                # Reserva.objects.create(libro=libro, usuario=request.user, fecha_reserva=fecha_reserva)
+                return render(request, 'accounts/reserva_exitosa.html', {'libro': libro})
+    else:
+        form = ReservaForm(initial={
+            'libro_id': libro.id,
+            'titulo': libro.titulo,
+            'autor': libro.autor,
+        })
+
+    return render(request, 'accounts/formulario_reserva.html', {'form': form, 'libro': libro})
+
+
+
+
+
+
+
+
+
 

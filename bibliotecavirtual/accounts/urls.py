@@ -11,4 +11,6 @@ urlpatterns = [
     path('logout/', views.custom_logout, name='logout'),
     path('catalogo/', views.catalogo_view, name='catalogo'),
     path('libro/<int:libro_id>/', views.detalle_libro_view, name='detalle_libro'),
+    path('libro/reservar/<int:id>/', views.reservar_libro, name='reservar_libro'),
+
 ]

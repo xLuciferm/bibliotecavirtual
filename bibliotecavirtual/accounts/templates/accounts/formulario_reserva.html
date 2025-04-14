@@ -1,0 +1,44 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4 text-center">Reservar libro</h3>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="card mb-4" style="max-width: 850px; margin: auto;">
+            <div class="row g-0 align-items-center">
+                <!-- Imagen del libro -->
+                <div class="col-md-4 text-center">
+                    {% if libro.imagen %}
+                    <img src="{{ libro.imagen.url }}" class="img-thumbnail p-2" alt="{{ libro.titulo }}" style="max-height: 200px; object-fit: cover;">
+                    {% endif %}
+                </div>
+                <!-- Información y fecha -->
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ libro.titulo }}</h5>
+                        <p class="card-text mb-1"><strong>Autor:</strong> {{ libro.autor }}</p>
+                        <p class="card-text mb-1"><strong>ISBN:</strong> {{ libro.isbn }}</p>
+                        <div class="mb-2 mt-3">
+                            <label for="id_fecha_reserva" class="form-label"><strong>Fecha de reserva:</strong></label>
+                            <input type="date" name="fecha_reserva" id="id_fecha_reserva" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm mt-2">Confirmar reserva</button>
+                        <a href="{% url 'catalogo' %}" class="btn btn-secondary btn-sm mt-2">Cancelar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Script para evitar fechas pasadas -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaInput = document.getElementById('id_fecha_reserva');
+        const hoy = new Date().toISOString().split('T')[0];
+        fechaInput.min = hoy;
+    });
+</script>
+{% endblock %}

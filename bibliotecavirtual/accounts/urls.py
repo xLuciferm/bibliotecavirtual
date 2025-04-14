@@ -10,4 +10,5 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),  # Cambié esta ruta
     path('logout/', views.custom_logout, name='logout'),
     path('catalogo/', views.catalogo_view, name='catalogo'),
+    path('libro/<int:libro_id>/', views.detalle_libro_view, name='detalle_libro'),
 ]

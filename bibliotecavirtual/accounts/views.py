@@ -90,21 +90,36 @@ def custom_logout(request):
     logout(request)
     return redirect('login')
 
-# Vista para catálogo
 from django.shortcuts import render
 from .models import Libro
+from django.contrib.auth.decorators import login_required
 
 @login_required
 def catalogo_view(request):
     titulo = request.GET.get('titulo', '')
     autor = request.GET.get('autor', '')
 
-    libros = Libro.objects.all()  # Obtén todos los libros como base
+    libros = Libro.objects.all()
 
-    if titulo:
-        libros = libros.filter(titulo__icontains=titulo)  # Filtra por título del libro
+    hay_busqueda = False
 
-    if autor:
-        libros = libros.filter(autor__icontains=autor)  # Filtra por autor
+    if titulo or autor:
+        hay_busqueda = True
+        if titulo:
+            libros = libros.filter(titulo__icontains=titulo)
+        if autor:
+            libros = libros.filter(autor__icontains=autor)
 
-    return render(request, 'accounts/catalogo.html', {'libros': libros})
+    return render(request, 'accounts/catalogo.html', {
+        'libros': libros,
+        'hay_busqueda': hay_busqueda
+    })
+
+from django.shortcuts import render, get_object_or_404
+from .models import Libro
+
+@login_required
+def detalle_libro_view(request, libro_id):
+    libro = get_object_or_404(Libro, id=libro_id)
+    return render(request, 'accounts/detalle_libro.html', {'libro': libro})
+

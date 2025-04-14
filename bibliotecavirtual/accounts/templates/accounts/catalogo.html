@@ -20,32 +20,58 @@
         </div>
     </form>
 
-    <!-- Mostrar los resultados -->
-    <div class="mt-4">
+    <!-- Mostrar resultados o todos los libros -->
+    <div class="mt-5">
         {% if hay_busqueda %}
             <h3>Resultados de la búsqueda:</h3>
+            {% if libros %}
+                <div class="row">
+                    {% for libro in libros %}
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100">
+                                {% if libro.imagen %}
+                                    <a href="{% url 'detalle_libro' libro.id %}">
+                                        <img src="{{ libro.imagen.url }}" class="card-img-top" alt="{{ libro.titulo }}" style="max-height: 200px; object-fit: cover;">
+                                    </a>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="{% url 'detalle_libro' libro.id %}" class="text-decoration-none text-dark">
+                                            {{ libro.titulo }}
+                                        </a>
+                                    </h5>
+                                    <p class="card-text">por {{ libro.autor }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No se encontraron resultados.</p>
+            {% endif %}
         {% else %}
             <h3>Todos los libros disponibles:</h3>
-        {% endif %}
-
-        {% if libros %}
             <div class="row">
                 {% for libro in libros %}
                     <div class="col-md-3 mb-4">
                         <div class="card h-100">
                             {% if libro.imagen %}
-                                <img src="{{ libro.imagen.url }}" class="card-img-top" alt="{{ libro.titulo }}" style="max-height: 200px; object-fit: cover;">
+                                <a href="{% url 'detalle_libro' libro.id %}">
+                                    <img src="{{ libro.imagen.url }}" class="card-img-top" alt="{{ libro.titulo }}" style="max-height: 200px; object-fit: cover;">
+                                </a>
                             {% endif %}
                             <div class="card-body">
-                                <h5 class="card-title">{{ libro.titulo }}</h5>
+                                <h5 class="card-title">
+                                    <a href="{% url 'detalle_libro' libro.id %}" class="text-decoration-none text-dark">
+                                        {{ libro.titulo }}
+                                    </a>
+                                </h5>
                                 <p class="card-text">por {{ libro.autor }}</p>
                             </div>
                         </div>
                     </div>
                 {% endfor %}
             </div>
-        {% else %}
-            <p>No se encontraron resultados.</p>
         {% endif %}
     </div>
 </div>

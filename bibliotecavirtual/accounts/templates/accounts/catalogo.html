@@ -1,0 +1,52 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2 class="text-primary mb-4">Catálogo de Libros</h2>
+    <p class="lead">Aquí se mostrarán todos los libros disponibles en la biblioteca virtual.</p>
+
+    <!-- Formulario de búsqueda -->
+    <form method="get" action="{% url 'catalogo' %}">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <input type="text" name="titulo" class="form-control" placeholder="Buscar por título del libro" value="{{ request.GET.titulo }}">
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="autor" class="form-control" placeholder="Buscar por autor" value="{{ request.GET.autor }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Mostrar los resultados -->
+    <div class="mt-4">
+        {% if hay_busqueda %}
+            <h3>Resultados de la búsqueda:</h3>
+        {% else %}
+            <h3>Todos los libros disponibles:</h3>
+        {% endif %}
+
+        {% if libros %}
+            <div class="row">
+                {% for libro in libros %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
+                            {% if libro.imagen %}
+                                <img src="{{ libro.imagen.url }}" class="card-img-top" alt="{{ libro.titulo }}" style="max-height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ libro.titulo }}</h5>
+                                <p class="card-text">por {{ libro.autor }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No se encontraron resultados.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -19,33 +19,21 @@
     <nav class="navbar navbar-expand-sm navbar-dark bg-primary navbar-custom">
         <div class="container-fluid d-flex justify-content-between align-items-center">
 
-            <!-- Bloque izquierdo -->
+            <!-- Bloque izquierdo (Inicio solo en /accounts/catalogo/) -->
             <div>
-                {% if request.user.is_authenticated and request.path == '/accounts/libros/' %}
-                    <a href="{% url 'home' %}" class="btn btn-light">Inicio</a>
-                {% elif request.user.is_authenticated and request.path|slice:":17" == '/accounts/libros/' %}
+                {% if request.user.is_authenticated and request.path == '/accounts/catalogo/' %}
                     <a href="{% url 'home' %}" class="btn btn-light">Inicio</a>
                 {% endif %}
             </div>
 
             <!-- Título central -->
             <div class="text-white fw-bold fs-5">
-                 Biblioteca Virtual
+                Biblioteca Virtual
             </div>
 
-            <!-- Bloque derecho -->
+            <!-- Bloque derecho (Cerrar sesión en /accounts/catalogo/ y /accounts/home/) -->
             <div>
-                {% if request.user.is_authenticated and request.path == '/accounts/home/' %}
-                    <form action="{% url 'logout' %}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Cerrar sesión</button>
-                    </form>
-                {% elif request.user.is_authenticated and request.path == '/accounts/libros/' %}
-                    <form action="{% url 'logout' %}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Cerrar sesión</button>
-                    </form>
-                {% elif request.user.is_authenticated and request.path|slice:":17" == '/accounts/libros/' %}
+                {% if request.user.is_authenticated and request.path == '/accounts/catalogo/' or request.path == '/accounts/home/' %}
                     <form action="{% url 'logout' %}" method="post" class="d-inline">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger">Cerrar sesión</button>

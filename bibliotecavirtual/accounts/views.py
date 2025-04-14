@@ -34,7 +34,6 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
 
-
 @login_required
 def setup_mfa(request, device_id):
     device = TOTPDevice.objects.get(id=device_id)
@@ -51,7 +50,6 @@ def setup_mfa(request, device_id):
         'qr_base64': qr_base64
     })
 
-
 @login_required
 def verify_token(request):
     if request.session.get('mfa_verified'):
@@ -59,7 +57,8 @@ def verify_token(request):
 
     if request.method == 'POST':
         token = request.POST.get('token')
-        device = TOTPDevice.objects.filter(user=request.user).first()
+        device = TOTPDevice.objects.filter(user=request.user, confirmed=True).first()
+
         if device and device.verify_token(token):
             request.session['mfa_verified'] = True
             next_url = request.GET.get('next')
@@ -83,7 +82,7 @@ class CustomLoginView(LoginView):
         login(self.request, form.get_user())  # inicia sesión
         return redirect(reverse('verify_token'))  # ignora ?next=
 
-# views.py
+# logout personalizado
 from django.contrib.auth import logout
 
 @login_required
@@ -91,10 +90,21 @@ def custom_logout(request):
     logout(request)
     return redirect('login')
 
+# Vista para catálogo
+from django.shortcuts import render
+from .models import Libro
 
+@login_required
+def catalogo_view(request):
+    titulo = request.GET.get('titulo', '')
+    autor = request.GET.get('autor', '')
 
+    libros = Libro.objects.all()  # Obtén todos los libros como base
 
+    if titulo:
+        libros = libros.filter(titulo__icontains=titulo)  # Filtra por título del libro
 
+    if autor:
+        libros = libros.filter(autor__icontains=autor)  # Filtra por autor
 
-
-
+    return render(request, 'accounts/catalogo.html', {'libros': libros})

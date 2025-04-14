@@ -10,7 +10,7 @@
               <div class="alert alert-danger">{{ message }}</div>
           {% endfor %}
       {% endif %}
-      <form method="post">
+      <form method="post" action="{% url 'login' %}">  <!-- Asegúrate de que aquí está la URL correcta -->
           {% csrf_token %}
           <div class="form-group mb-3">
               <label for="username">Usuario</label>

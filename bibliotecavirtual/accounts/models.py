@@ -8,9 +8,14 @@ class Libro(models.Model):
     titulo = models.CharField(max_length=200)
     autor = models.CharField(max_length=100)
     categoria = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)
     isbn = models.CharField(max_length=13)
     stock = models.PositiveIntegerField()
     imagen = models.ImageField(upload_to='libros/', blank=True, null=True)
+      # <- campo nuevo
+
+    def __str__(self):
+        return self.titulo
 
 from django.db import models
 from django.contrib.auth import get_user_model

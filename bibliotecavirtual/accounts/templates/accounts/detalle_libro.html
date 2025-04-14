@@ -2,16 +2,29 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="card mx-auto" style="max-width: 600px;">
-        {% if libro.imagen %}
-            <img src="{{ libro.imagen.url }}" class="card-img-top" alt="{{ libro.titulo }}">
-        {% endif %}
-        <div class="card-body">
-            <h3 class="card-title">{{ libro.titulo }}</h3>
-            <h5 class="text-muted">Autor: {{ libro.autor }}</h5>
-            <p class="card-text mt-3">{{ libro.descripcion }}</p>
+    <div class="card mx-auto" style="max-width: 800px;"> <!-- Aumenté el ancho máximo -->
+        <div class="row g-0"> <!-- row sin espacio entre columnas (g-0) -->
+            <!-- Columna para la imagen -->
+            <div class="col-md-4">
+                {% if libro.imagen %}
+                <img src="{{ libro.imagen.url }}" class="img-fluid rounded-start" alt="{{ libro.titulo }}" style="width: 100%; height: auto; object-fit: cover;">
+                {% endif %}
+            </div>
+            <!-- Columna para la información -->
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h3 class="card-title">{{ libro.titulo }}</h3>
+                    <h5 class="text-muted mb-2">Autor: {{ libro.autor }}</h5>
+                    <p><strong>Categoría:</strong> {{ libro.categoria }}</p>
+                    <p><strong>ISBN:</strong> {{ libro.isbn }}</p>
 
-            <a href="{% url 'catalogo' %}" class="btn btn-secondary mt-3">← Volver al catálogo</a>
+                    {% if libro.descripcion %}
+                        <p class="card-text mt-3"><strong>Descripción:</strong> {{ libro.descripcion }}</p>
+                    {% endif %}
+
+                    <a href="{% url 'catalogo' %}" class="btn btn-secondary mt-3">← Volver al catálogo</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

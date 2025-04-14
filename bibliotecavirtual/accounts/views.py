@@ -90,8 +90,6 @@ def custom_logout(request):
     logout(request)
     return redirect('login')
 
-from django.shortcuts import render
-from .models import Libro
 from django.contrib.auth.decorators import login_required
 
 @login_required

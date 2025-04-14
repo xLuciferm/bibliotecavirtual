@@ -6,6 +6,7 @@ from django.utils.html import format_html
 class LibroAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'autor', 'categoria', 'isbn', 'stock', 'mostrar_imagen')
     readonly_fields = ('mostrar_imagen',)
+    fields = ('titulo', 'autor', 'categoria', 'isbn', 'stock', 'imagen', 'mostrar_imagen', 'descripcion')  # <- AÑADIDO
 
     def mostrar_imagen(self, obj):
         if obj.imagen:

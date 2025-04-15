@@ -7,18 +7,16 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'password1', 'password2')
 
 from django import forms
-from django.utils import timezone
+from datetime import date
+
 class ReservaForm(forms.Form):
-    libro_id = forms.IntegerField(widget=forms.HiddenInput())
-    titulo = forms.CharField(max_length=200, disabled=True)
-    autor = forms.CharField(max_length=200, disabled=True)
     fecha_reserva = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         label='Fecha de reserva'
     )
 
     def clean_fecha_reserva(self):
-        fecha = self.cleaned_data.get('fecha_reserva')
-        if fecha < timezone.now().date():
-            raise forms.ValidationError("La fecha de reserva no puede ser en el pasado.")
+        fecha = self.cleaned_data['fecha_reserva']
+        if fecha < date.today():
+            raise forms.ValidationError("La fecha de reserva no puede ser anterior a hoy.")
         return fecha

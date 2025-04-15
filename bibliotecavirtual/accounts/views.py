@@ -119,34 +119,56 @@ def detalle_libro_view(request, libro_id):
     return render(request, 'accounts/detalle_libro.html', {'libro': libro})
 
 from django.shortcuts import render, get_object_or_404, redirect
-from django.shortcuts import render, get_object_or_404
-from .models import Libro
+from django.contrib.auth.decorators import login_required
+from .models import Libro, Reserva
 from .forms import ReservaForm
-from django.utils import timezone
 from django.contrib import messages
 
-def reservar_libro(request, id):
-    libro = get_object_or_404(Libro, id=id)
+@login_required
+def reservar_libro(request, libro_id):
+    libro = get_object_or_404(Libro, id=libro_id)
+
+    if libro.stock <= 0:
+        messages.error(request, "Este libro no tiene stock disponible.")
+        return redirect('catalogo')
 
     if request.method == 'POST':
         form = ReservaForm(request.POST)
         if form.is_valid():
-            fecha_reserva = form.cleaned_data['fecha_reserva']
-            if fecha_reserva < timezone.now().date():
-                messages.error(request, "No puedes seleccionar una fecha pasada.")
-            else:
-                # Aquí podrías guardar la reserva en tu modelo Reserva si ya lo tienes
-                # Ejemplo:
-                # Reserva.objects.create(libro=libro, usuario=request.user, fecha_reserva=fecha_reserva)
-                return render(request, 'accounts/reserva_exitosa.html', {'libro': libro})
+            fecha_deseada = form.cleaned_data['fecha_reserva']
+            reserva = Reserva.objects.create(
+                usuario=request.user,
+                libro=libro,
+                fecha_deseada=fecha_deseada
+            )
+            libro.stock -= 1
+            libro.save()
+            return redirect('reserva_exitosa', reserva_id=reserva.id)
+        else:
+            messages.error(request, "Por favor corrige los errores en el formulario.")
     else:
-        form = ReservaForm(initial={
-            'libro_id': libro.id,
-            'titulo': libro.titulo,
-            'autor': libro.autor,
-        })
+        form = ReservaForm()
 
-    return render(request, 'accounts/formulario_reserva.html', {'form': form, 'libro': libro})
+    return render(request, 'accounts/formulario_reserva.html', {
+        'libro': libro,
+        'form': form
+    })
+
+
+@login_required
+def reserva_exitosa(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    return render(request, 'accounts/reserva_exitosa.html', {
+        'reserva': reserva,
+        'libro': reserva.libro
+    })
+
+
+
+
+
+
+
 
 
 

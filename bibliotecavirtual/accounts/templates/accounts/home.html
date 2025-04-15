@@ -20,7 +20,7 @@
         <div class="d-flex gap-2">
             {% if request.user.is_authenticated %}
                 <a href="{% url 'catalogo' %}" class="btn btn-light">Catálogo</a>
-                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                <form action="{% url 'exit' %}" method="post" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">Cerrar sesión</button>
                 </form>

@@ -75,7 +75,7 @@ from django.urls import reverse
 from django.contrib.auth.views import LoginView
 
 class CustomLoginView(LoginView):
-    template_name = 'accounts/login.html'
+    template_name = 'accounts/log.html'
 
     def form_valid(self, form):
         """Siempre redirige a verify_token después del login."""
@@ -88,7 +88,7 @@ from django.contrib.auth import logout
 @login_required
 def custom_logout(request):
     logout(request)
-    return redirect('login')
+    return redirect('log')
 
 from django.contrib.auth.decorators import login_required
 

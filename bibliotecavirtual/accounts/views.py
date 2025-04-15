@@ -118,42 +118,69 @@ def detalle_libro_view(request, libro_id):
     libro = get_object_or_404(Libro, id=libro_id)
     return render(request, 'accounts/detalle_libro.html', {'libro': libro})
 
+from django.core.exceptions import ValidationError
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Libro, Reserva
 from .forms import ReservaForm
-from django.contrib import messages
+
 
 @login_required
 def reservar_libro(request, libro_id):
     libro = get_object_or_404(Libro, id=libro_id)
 
+    # Verificar si el libro tiene stock disponible
     if libro.stock <= 0:
         messages.error(request, "Este libro no tiene stock disponible.")
         return redirect('catalogo')
 
+    # Creamos una variable para saber si ya existe una reserva
+    reserva_existente = Reserva.objects.filter(usuario=request.user, libro=libro,
+                                               fecha_devolucion__isnull=True).exists()
+
     if request.method == 'POST':
-        form = ReservaForm(request.POST)
-        if form.is_valid():
-            fecha_deseada = form.cleaned_data['fecha_reserva']
-            reserva = Reserva.objects.create(
-                usuario=request.user,
-                libro=libro,
-                fecha_deseada=fecha_deseada
-            )
-            libro.stock -= 1
-            libro.save()
-            return redirect('reserva_exitosa', reserva_id=reserva.id)
+        # Si ya tiene una reserva activa y está intentando hacer POST, mostramos error
+        if reserva_existente:
+            messages.error(request,
+                           "Ya tienes este libro reservado. No puedes reservarlo nuevamente hasta que lo devuelvas.")
+            form = ReservaForm()  # Inicializamos un formulario vacío para mostrar
         else:
-            messages.error(request, "Por favor corrige los errores en el formulario.")
+            form = ReservaForm(request.POST)
+            if form.is_valid():
+                fecha_reserva = form.cleaned_data['fecha_reserva']
+                reserva = Reserva(
+                    usuario=request.user,
+                    libro=libro,
+                    fecha_de_reserva=fecha_reserva
+                )
+                try:
+                    reserva.full_clean()
+                    reserva.save()
+
+                    # Reducir stock solo si se guardó correctamente
+                    libro.stock -= 1
+                    libro.save()
+
+                    return redirect('reserva_exitosa', reserva_id=reserva.id)
+
+                except ValidationError as e:
+                    mensaje = e.message_dict.get('__all__', ["Ocurrió un error al guardar la reserva."])[0]
+                    messages.error(request, mensaje)
+            else:
+                messages.error(request, "Por favor corrige los errores en el formulario.")
     else:
+        # Si ya tiene una reserva activa y está accediendo por GET, mostramos error
+        if reserva_existente:
+            messages.error(request,
+                           "Ya tienes este libro reservado. No puedes reservarlo nuevamente hasta que lo devuelvas.")
         form = ReservaForm()
 
     return render(request, 'accounts/formulario_reserva.html', {
         'libro': libro,
-        'form': form
+        'form': form,
+        'reserva_existente': reserva_existente  # Pasamos esta variable al template
     })
-
 
 @login_required
 def reserva_exitosa(request, reserva_id):
@@ -162,6 +189,7 @@ def reserva_exitosa(request, reserva_id):
         'reserva': reserva,
         'libro': reserva.libro
     })
+
 
 
 

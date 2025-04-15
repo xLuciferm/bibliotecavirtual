@@ -2,8 +2,7 @@ from django.contrib import admin
 from .models import Libro, Reserva
 from django.utils.html import format_html
 from django.urls import reverse
-from django.utils.safestring import mark_safe
-
+from django.utils import timezone
 
 @admin.register(Libro)
 class LibroAdmin(admin.ModelAdmin):
@@ -28,11 +27,10 @@ class LibroAdmin(admin.ModelAdmin):
 
     disponibilidad.short_description = "Estado"
 
-
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
-    list_display = ('usuario', 'enlace_libro', 'fecha_deseada', 'fecha_entrega', 'estado_reserva')
-    list_filter = ('fecha_deseada', 'fecha_entrega', 'usuario', 'libro__categoria')
+    list_display = ('usuario', 'enlace_libro', 'fecha_de_reserva', 'fecha_devolucion', 'estado_reserva')
+    list_filter = ('fecha_de_reserva', 'fecha_devolucion', 'usuario', 'libro__categoria')
     search_fields = ('libro__titulo', 'usuario__username')
     list_select_related = ('libro', 'usuario')
     actions = ['marcar_como_entregado']
@@ -45,19 +43,16 @@ class ReservaAdmin(admin.ModelAdmin):
     enlace_libro.admin_order_field = 'libro__titulo'
 
     def estado_reserva(self, obj):
-        if obj.fecha_entrega:
+        if obj.fecha_devolucion:
             return "Entregado"
-        if obj.fecha_deseada < timezone.now().date():
+        if obj.fecha_de_reserva < timezone.now().date():
             return "Vencido"
         return "Pendiente"
 
     estado_reserva.short_description = "Estado"
 
     def marcar_como_entregado(self, request, queryset):
-        updated = queryset.update(fecha_entrega=timezone.now().date())
+        updated = queryset.update(fecha_devolucion=timezone.now().date())
         self.message_user(request, f"{updated} reservas marcadas como entregadas")
 
     marcar_como_entregado.short_description = "Marcar como entregado"
-
-    # Añade esto al inicio del archivo si no está ya
-    from django.utils import timezone

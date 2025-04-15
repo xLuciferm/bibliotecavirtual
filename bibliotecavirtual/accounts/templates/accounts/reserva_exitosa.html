@@ -10,7 +10,8 @@
             <h4 class="card-title">{{ libro.titulo }}</h4>
             <p class="card-text">
                 <strong>Autor:</strong> {{ libro.autor }}<br>
-                <strong>Fecha de reserva:</strong> {{ reserva.fecha_deseada|date:"d/m/Y" }}
+                <strong>Fecha de reserva:</strong> {{ reserva.fecha_deseada|date:"d/m/Y" }}<br>
+                <strong>Fecha de entrega:</strong> {{ reserva.fecha_entrega|date:"d/m/Y" }}  <!-- Aquí agregas la fecha de entrega -->
             </p>
 
             <div class="alert alert-info">

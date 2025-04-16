@@ -1,0 +1,100 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card mx-auto" style="max-width: 800px;">
+        <div class="card-body">
+            <h3 class="card-title">Editar Reseña</h3>
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Calificación</label>
+                    <div class="rating" id="rating-stars">
+                        {% for i in "12345"|make_list %}
+                            <input type="radio" id="star{{ i }}" name="calificacion" value="{{ i }}" {% if form.calificacion.value == i %} checked {% endif %} />
+                            <label for="star{{ i }}" class="star {% if form.calificacion.value >= i %}checked{% endif %}">&#9733;</label>
+                        {% endfor %}
+                    </div>
+
+                    {% if form.calificacion.errors %}
+                        <div class="text-danger">
+                            {% for error in form.calificacion.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.comentario.label_tag }}
+                    {{ form.comentario }}
+                    {% if form.comentario.errors %}
+                        <div class="text-danger">
+                            {% for error in form.comentario.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Actualizar reseña</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- CSS para el estilo de las estrellas -->
+<style>
+    .star {
+        font-size: 30px;
+        color: #ccc; /* Gris para las estrellas vacías */
+        transition: color 0.3s ease;
+    }
+
+    .star.checked {
+        color: #ffc107; /* Amarillo para las estrellas llenas */
+    }
+
+    input[type="radio"] {
+        display: none; /* Ocultar los botones de radio */
+    }
+</style>
+
+<!-- JavaScript para actualizar el comportamiento de las estrellas -->
+<script>
+    // Mostrar mensaje basado en la calificación seleccionada
+    const stars = document.querySelectorAll('input[name="calificacion"]');
+    const message = document.getElementById('calificacion-message');
+
+    stars.forEach(star => {
+        star.addEventListener('change', function() {
+            const rating = parseInt(this.value);
+            const labels = document.querySelectorAll('.star');
+
+            // Resaltar las estrellas seleccionadas
+            labels.forEach((label, index) => {
+                if (index < rating) {
+                    label.classList.add('checked');
+                } else {
+                    label.classList.remove('checked');
+                }
+            });
+
+            // Mensaje de la calificación
+            if (rating === 5) {
+                message.textContent = "La calificación es excelente!";
+            } else if (rating === 4) {
+                message.textContent = "La calificación es buena!";
+            } else if (rating === 3) {
+                message.textContent = "La calificación es promedio.";
+            } else if (rating === 2) {
+                message.textContent = "La calificación es baja.";
+            } else {
+                message.textContent = "La calificación es muy baja.";
+            }
+        });
+    });
+</script>
+
+{% endblock %}

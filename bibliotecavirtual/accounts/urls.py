@@ -13,4 +13,6 @@ urlpatterns = [
     path('libro/<int:libro_id>/', views.detalle_libro_view, name='detalle_libro'),
     path('libro/reservar/<int:libro_id>/', views.reservar_libro, name='reservar_libro'),
     path('reserva-exitosa/<int:reserva_id>/', reserva_exitosa, name='reserva_exitosa'),
+    path('editar_resena/<int:comentario_id>/', views.editar_resena, name='editar_resena'),
+    path('eliminar_comentario/<int:comentario_id>/', views.eliminar_comentario, name='eliminar_comentario'),
 ]

@@ -32,3 +32,21 @@ class ResenaForm(forms.ModelForm):
             'comentario': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
 
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Resena
+from .forms import ResenaForm
+
+def editar_resena(request, resena_id):
+    # Obtén la reseña que se va a editar
+    resena = get_object_or_404(Resena, id=resena_id)
+
+    # Si la solicitud es POST, es porque el usuario está enviando el formulario
+    if request.method == 'POST':
+        form = ResenaForm(request.POST, instance=resena)  # Le pasas la instancia de la reseña
+        if form.is_valid():
+            form.save()  # Guarda los cambios
+            return redirect('detalle_libro', libro_id=resena.libro.id)  # Redirige a la página del libro
+    else:
+        form = ResenaForm(instance=resena)  # Si es un GET, se muestra el formulario con los datos actuales
+
+    return render(request, 'editar_resena.html', {'form': form, 'resena': resena})

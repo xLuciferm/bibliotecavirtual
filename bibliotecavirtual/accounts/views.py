@@ -222,3 +222,39 @@ def reserva_exitosa(request, reserva_id):
         'libro': reserva.libro
     })
 
+@login_required
+def editar_resena(request, comentario_id):
+    comentario = get_object_or_404(Resena, id=comentario_id)
+
+    # Verificamos si el usuario es el propietario del comentario
+    if comentario.usuario != request.user:
+        messages.error(request, "No tienes permiso para editar esta reseña.")
+        return redirect('detalle_libro', libro_id=comentario.libro.id)
+
+    if request.method == 'POST':
+        form = ResenaForm(request.POST, instance=comentario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Reseña actualizada exitosamente.")
+            return redirect('detalle_libro', libro_id=comentario.libro.id)  # Mantenerse en la misma página
+    else:
+        form = ResenaForm(instance=comentario)
+
+    return render(request, 'accounts/editar_resena.html', {
+        'form': form,
+        'comentario': comentario
+    })
+
+@login_required
+def eliminar_comentario(request, comentario_id):
+    comentario = get_object_or_404(Resena, id=comentario_id)
+
+    # Verificamos si el usuario es el propietario del comentario
+    if comentario.usuario != request.user:
+        messages.error(request, "No tienes permiso para eliminar este comentario.")
+        return redirect('detalle_libro', libro_id=comentario.libro.id)
+
+    comentario.delete()
+    messages.success(request, "Comentario eliminado exitosamente.")
+    return redirect('detalle_libro', libro_id=comentario.libro.id)  # Redirigir a la misma página
+

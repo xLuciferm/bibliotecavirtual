@@ -16,21 +16,153 @@
                 <div class="card-body">
                     <h3 class="card-title">{{ libro.titulo }}</h3>
                     <h5 class="text-muted mb-2">Autor: {{ libro.autor }}</h5>
-                    <p><strong>Categoría:</strong> {{ libro.categoria }}</p>
+                    <p><strong>Categoria:</strong> {{ libro.categoria }}</p>
                     <p><strong>ISBN:</strong> {{ libro.isbn }}</p>
 
                     {% if libro.descripcion %}
-                        <p class="card-text mt-3"><strong>Descripción:</strong> {{ libro.descripcion }}</p>
+                        <p class="card-text mt-3"><strong>Descripcion:</strong> {{ libro.descripcion }}</p>
                     {% endif %}
 
                     <!-- Botones -->
                     <div class="mt-3 d-flex gap-2">
-                        <a href="{% url 'catalogo' %}" class="btn btn-secondary">← Volver al catálogo</a>
+                        <a href="{% url 'catalogo' %}" class="btn btn-secondary">← Volver al catalogo</a>
                         <a href="{% url 'reservar_libro' libro.id %}" class="btn btn-success">Reservar libro</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Reseñas y calificaciones -->
+    <div class="card mt-4 mx-auto" style="max-width: 800px;">
+        <div class="card-header bg-primary text-white">
+            Reseñas y calificaciones
+        </div>
+        <div class="card-body">
+            {% if libro.resenas.all %}
+                {% for resena in libro.resenas.all %}
+                    <div class="mb-3 border-bottom pb-2">
+                        <strong>{{ resena.usuario.username }}</strong>
+                        <span class="text-warning">
+                        {% with calificacion=resena.calificacion|add:"0" %}
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= calificacion %}
+                                    <i class="bi bi-star-fill"></i> <!-- Estrella llena -->
+                                {% else %}
+                                    <i class="bi bi-star"></i> <!-- Estrella vacía -->
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                        </span>
+                        <p class="mb-1">{{ resena.comentario }}</p>
+                        <small class="text-muted">{{ resena.fecha|date:"d/m/Y H:i" }}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay reseñas para este libro todavía.</p>
+            {% endif %}
+        </div>
+
+        <!-- Formulario para dejar reseña -->
+        <div class="card-footer">
+            {% if form_resena %}
+                <hr>
+                <h5>Deja tu reseña</h5>
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Calificación</label>
+                        <div class="rating" id="rating-stars">
+                            {% for i in "12345"|make_list %}
+                                <input type="radio" id="star{{ i }}" name="calificacion" value="{{ i }}" {% if form_resena.calificacion.value == i %} checked {% endif %} />
+                                <label for="star{{ i }}" class="star {% if form_resena.calificacion.value >= i %}checked{% endif %}">&#9733;</label> <!-- Estrellas que se resaltan en amarillo si están seleccionadas -->
+                            {% endfor %}
+                        </div>
+
+                        <!-- Mensaje de la calificación -->
+                        <p id="calificacion-message" class="mt-2"></p>
+
+                        {% if form_resena.calificacion.errors %}
+                            <div class="text-danger">
+                                {% for error in form_resena.calificacion.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_resena.comentario.label_tag }}
+                        {{ form_resena.comentario }}
+                        {% if form_resena.comentario.errors %}
+                            <div class="text-danger">
+                                {% for error in form_resena.comentario.errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Enviar reseña</button>
+                </form>
+            {% else %}
+                <p class="text-muted">Ya has dejado una reseña para este libro.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
+
+<script>
+    // Mostrar mensaje basado en la calificación seleccionada
+    const stars = document.querySelectorAll('input[name="calificacion"]');
+    const message = document.getElementById('calificacion-message');
+
+    stars.forEach(star => {
+        star.addEventListener('change', function() {
+            const rating = parseInt(this.value);
+            const labels = document.querySelectorAll('.star');
+
+            // Resaltar las estrellas seleccionadas
+            labels.forEach((label, index) => {
+                if (index < rating) {
+                    label.classList.add('checked');
+                } else {
+                    label.classList.remove('checked');
+                }
+            });
+
+            // Mensaje de la calificación
+            if (rating === 5) {
+                message.textContent = "La calificación es excelente!";
+            } else if (rating === 4) {
+                message.textContent = "La calificación es buena!";
+            } else if (rating === 3) {
+                message.textContent = "La calificación es promedio.";
+            } else if (rating === 2) {
+                message.textContent = "La calificación es baja.";
+            } else {
+                message.textContent = "La calificación es muy baja.";
+            }
+        });
+    });
+</script>
+
+<!-- CSS para el estilo de las estrellas -->
+<style>
+    .star {
+        font-size: 30px;
+        color: #ccc; /* Gris para las estrellas vacías */
+        transition: color 0.3s ease;
+    }
+
+    .star.checked {
+        color: #ffc107; /* Amarillo para las estrellas llenas */
+    }
+
+    input[type="radio"] {
+        display: none; /* Ocultar los botones de radio */
+    }
+</style>
+
 {% endblock %}

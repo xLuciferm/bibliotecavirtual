@@ -17,7 +17,6 @@ class Libro(models.Model):
     def __str__(self):
         return f"{self.titulo} (Stock: {self.stock})"
 
-
 class Reserva(models.Model):
     usuario = models.ForeignKey('User', on_delete=models.CASCADE)
     libro = models.ForeignKey('Libro', on_delete=models.CASCADE)
@@ -25,11 +24,11 @@ class Reserva(models.Model):
     fecha_devolucion = models.DateField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.full_clean()  # Esto asegura que se aplique `clean()` incluso desde el admin
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def clean(self):
-        if not self.pk:  # Solo validar si es una nueva reserva
+        if not self.pk:
             existe = Reserva.objects.filter(
                 usuario=self.usuario,
                 libro=self.libro,
@@ -41,3 +40,17 @@ class Reserva(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} - {self.libro.titulo} ({self.fecha_de_reserva})"
+
+# 👇 Esta clase debe ir fuera de Reserva y sin ñ
+class Resena(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    libro = models.ForeignKey(Libro, on_delete=models.CASCADE, related_name='resenas')
+    calificacion = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    comentario = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('usuario', 'libro')
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.libro.titulo} ({self.calificacion} estrellas)"

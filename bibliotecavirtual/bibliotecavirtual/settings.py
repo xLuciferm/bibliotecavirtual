@@ -63,6 +63,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 ROOT_URLCONF = 'bibliotecavirtual.urls'
 
+TIME_ZONE = 'America/Mexico_City'  # Ajusta la zona horaria según corresponda
+USE_TZ = True
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

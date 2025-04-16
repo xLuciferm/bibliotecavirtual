@@ -39,8 +39,10 @@
                             <input type="text" class="form-control" value="{{ libro.autor }}" disabled>
                         </div>
 
+                        <!-- Campo de fecha de reserva -->
                         <div class="mb-2">
-                            <label for="id_fecha_reserva" class="form-label"><strong>Fecha de reserva:</strong></label>
+                            <!-- Accedemos a form.fecha_reserva como campo completo -->
+                            <label for="{{ form.fecha_reserva.id }}" class="form-label"><strong>Fecha de reserva:</strong></label>
                             {{ form.fecha_reserva }}
                             {% if form.fecha_reserva.errors %}
                                 <div class="text-danger">{{ form.fecha_reserva.errors }}</div>
@@ -75,4 +77,5 @@
         });
     }, 5000); // 5000 ms = 5 segundos
 </script>
+
 {% endblock %}

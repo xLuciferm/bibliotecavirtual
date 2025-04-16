@@ -113,10 +113,38 @@ def catalogo_view(request):
         'hay_busqueda': hay_busqueda
     })
 
+from django.contrib.auth.decorators import login_required
+from .models import Libro, Reserva, Resena
+from .forms import ResenaForm
+
 @login_required
 def detalle_libro_view(request, libro_id):
     libro = get_object_or_404(Libro, id=libro_id)
-    return render(request, 'accounts/detalle_libro.html', {'libro': libro})
+    resenas = libro.resenas.select_related('usuario').order_by('-fecha')
+    form_resena = None
+
+    if request.method == 'POST':
+        form_resena = ResenaForm(request.POST)
+        if form_resena.is_valid():
+            resena = form_resena.save(commit=False)
+            resena.usuario = request.user
+            resena.libro = libro
+            try:
+                resena.full_clean()
+                resena.save()
+                messages.success(request, "Gracias por tu reseña.")
+                return redirect('detalle_libro', libro_id=libro.id)
+            except ValidationError:
+                messages.error(request, "Ya has dejado una reseña para este libro.")
+    else:
+        if not Resena.objects.filter(usuario=request.user, libro=libro).exists():
+            form_resena = ResenaForm()
+
+    return render(request, 'accounts/detalle_libro.html', {
+        'libro': libro,
+        'resenas': resenas,
+        'form_resena': form_resena
+    })
 
 from django.core.exceptions import ValidationError
 from django.contrib import messages
@@ -162,6 +190,9 @@ def reservar_libro(request, libro_id):
                     libro.stock -= 1
                     libro.save()
 
+                    # Agregar mensaje de éxito
+                    messages.success(request, f"Reserva exitosa del libro: {libro.titulo}")
+
                     return redirect('reserva_exitosa', reserva_id=reserva.id)
 
                 except ValidationError as e:
@@ -182,6 +213,7 @@ def reservar_libro(request, libro_id):
         'reserva_existente': reserva_existente  # Pasamos esta variable al template
     })
 
+
 @login_required
 def reserva_exitosa(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
@@ -189,21 +221,4 @@ def reserva_exitosa(request, reserva_id):
         'reserva': reserva,
         'libro': reserva.libro
     })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -20,3 +20,15 @@ class ReservaForm(forms.Form):
         if fecha < date.today():
             raise forms.ValidationError("La fecha de reserva no puede ser anterior a hoy.")
         return fecha
+
+from .models import Resena
+
+class ResenaForm(forms.ModelForm):
+    class Meta:
+        model = Resena
+        fields = ['calificacion', 'comentario']
+        widgets = {
+            'calificacion': forms.RadioSelect,
+            'comentario': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }
+

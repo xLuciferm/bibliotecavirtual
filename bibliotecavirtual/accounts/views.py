@@ -114,6 +114,9 @@ def catalogo_view(request):
     })
 
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib import messages
+from django.core.exceptions import ValidationError
 from .models import Libro, Reserva, Resena
 from .forms import ResenaForm
 
@@ -122,6 +125,9 @@ def detalle_libro_view(request, libro_id):
     libro = get_object_or_404(Libro, id=libro_id)
     resenas = libro.resenas.select_related('usuario').order_by('-fecha')
     form_resena = None
+
+    # Recomendaciones completamente aleatorias, excluyendo el libro actual
+    recomendaciones = Libro.objects.exclude(id=libro.id).order_by('?')[:4]
 
     if request.method == 'POST':
         form_resena = ResenaForm(request.POST)
@@ -143,7 +149,8 @@ def detalle_libro_view(request, libro_id):
     return render(request, 'accounts/detalle_libro.html', {
         'libro': libro,
         'resenas': resenas,
-        'form_resena': form_resena
+        'form_resena': form_resena,
+        'recomendaciones': recomendaciones,
     })
 
 from django.core.exceptions import ValidationError

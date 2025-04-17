@@ -42,7 +42,6 @@
             {% if libro.resenas.all %}
                 {% for resena in libro.resenas.all %}
                     <div class="mb-3 border-bottom pb-2 position-relative">
-                        <!-- Contenedor para el nombre de usuario y calificación -->
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>{{ resena.usuario.username }}</strong>
@@ -50,9 +49,9 @@
                                     {% with calificacion=resena.calificacion|add:"0" %}
                                         {% for i in "12345"|make_list %}
                                             {% if forloop.counter <= calificacion %}
-                                                <i class="bi bi-star-fill"></i> <!-- Estrella llena -->
+                                                <i class="bi bi-star-fill"></i>
                                             {% else %}
-                                                <i class="bi bi-star"></i> <!-- Estrella vacía -->
+                                                <i class="bi bi-star"></i>
                                             {% endif %}
                                         {% endfor %}
                                     {% endwith %}
@@ -60,11 +59,8 @@
                             </div>
 
                             {% if resena.usuario == user %}
-                            <!-- Botones de editar y eliminar reseña alineados a la derecha -->
                             <div class="d-flex gap-2">
                                 <a href="{% url 'editar_resena' resena.id %}" class="btn btn-warning btn-sm">Editar reseña</a>
-
-                                <!-- Botón de eliminar comentario -->
                                 <form method="post" action="{% url 'eliminar_comentario' comentario_id=resena.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger btn-sm">Eliminar reseña</button>
@@ -82,7 +78,6 @@
             {% endif %}
         </div>
 
-        <!-- Formulario para dejar reseña -->
         <div class="card-footer">
             {% if form_resena %}
                 <hr>
@@ -95,13 +90,10 @@
                         <div class="rating" id="rating-stars">
                             {% for i in "12345"|make_list %}
                                 <input type="radio" id="star{{ i }}" name="calificacion" value="{{ i }}" {% if form_resena.calificacion.value == i %} checked {% endif %} />
-                                <label for="star{{ i }}" class="star {% if form_resena.calificacion.value >= i %}checked{% endif %}">&#9733;</label> <!-- Estrellas que se resaltan en amarillo si están seleccionadas -->
+                                <label for="star{{ i }}" class="star {% if form_resena.calificacion.value >= i %}checked{% endif %}">&#9733;</label>
                             {% endfor %}
                         </div>
-
-                        <!-- Mensaje de la calificación -->
                         <p id="calificacion-message" class="mt-2"></p>
-
                         {% if form_resena.calificacion.errors %}
                             <div class="text-danger">
                                 {% for error in form_resena.calificacion.errors %}
@@ -130,10 +122,38 @@
             {% endif %}
         </div>
     </div>
+
+    <!-- Recomendaciones personalizadas -->
+    <div class="card mt-4 mx-auto" style="max-width: 800px;">
+        <div class="card-header bg-info text-white">
+            Recomendaciones que te podrian gustar
+        </div>
+        <div class="card-body">
+            {% if recomendaciones %}
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for recomendado in recomendaciones %}
+                        <div class="col">
+                            <div class="card h-100">
+                                {% if recomendado.imagen %}
+                                    <img src="{{ recomendado.imagen.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ recomendado.titulo }}">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ recomendado.titulo }}</h5>
+                                    <p class="card-text"><strong>Autor:</strong> {{ recomendado.autor }}</p>
+                                    <a href="{% url 'detalle_libro' recomendado.id %}" class="btn btn-outline-primary btn-sm">Ver detalles</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No hay recomendaciones disponibles por ahora.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <script>
-    // Mostrar mensaje basado en la calificación seleccionada
     const stars = document.querySelectorAll('input[name="calificacion"]');
     const message = document.getElementById('calificacion-message');
 
@@ -142,45 +162,35 @@
             const rating = parseInt(this.value);
             const labels = document.querySelectorAll('.star');
 
-            // Resaltar las estrellas seleccionadas
             labels.forEach((label, index) => {
-                if (index < rating) {
-                    label.classList.add('checked');
-                } else {
-                    label.classList.remove('checked');
-                }
+                label.classList.toggle('checked', index < rating);
             });
 
-            // Mensaje de la calificación
-            if (rating === 5) {
-                message.textContent = "La calificación es excelente!";
-            } else if (rating === 4) {
-                message.textContent = "La calificación es buena!";
-            } else if (rating === 3) {
-                message.textContent = "La calificación es promedio.";
-            } else if (rating === 2) {
-                message.textContent = "La calificación es baja.";
-            } else {
-                message.textContent = "La calificación es muy baja.";
-            }
+            const mensajes = {
+                5: "La calificación es excelente!",
+                4: "La calificación es buena!",
+                3: "La calificación es promedio.",
+                2: "La calificación es baja.",
+                1: "La calificación es muy baja."
+            };
+            message.textContent = mensajes[rating] || "";
         });
     });
 </script>
 
-<!-- CSS para el estilo de las estrellas -->
 <style>
     .star {
         font-size: 30px;
-        color: #ccc; /* Gris para las estrellas vacías */
+        color: #ccc;
         transition: color 0.3s ease;
     }
 
     .star.checked {
-        color: #ffc107; /* Amarillo para las estrellas llenas */
+        color: #ffc107;
     }
 
     input[type="radio"] {
-        display: none; /* Ocultar los botones de radio */
+        display: none;
     }
 
     .position-relative {
